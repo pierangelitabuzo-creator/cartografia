@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cartografia da Presença Executiva</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:ital,wght@0,400;0,600;1,400&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #fff;
+    font-family: 'Open Sans', sans-serif;
+    color: #1a1a1a;
+    min-height: 100vh;
+    padding: 32px 20px 48px;
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 32px;
+    border-bottom: 2px solid #1a5c4a;
+    max-width: 880px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .tab-btn {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 10px 28px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: #888;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.18s;
+  }
+  .tab-btn.active {
+    color: #1a5c4a;
+    border-bottom-color: #1a5c4a;
+  }
+  .tab-btn:hover { color: #1a5c4a; }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+  .logo-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .logo-icon { width: 48px; height: 48px; }
+  .brand-name {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #1a5c4a;
+    line-height: 1.3;
+  }
+  h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(22px, 5vw, 36px);
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #1a1a1a;
+    margin-bottom: 14px;
+  }
+  .subtitle { font-size: 13px; color: #444; line-height: 1.7; }
+
+  /* NOME */
+  .nome-wrap {
+    max-width: 880px;
+    margin: 0 auto 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #f5faf8;
+    border: 1.5px solid #1a5c4a;
+    border-radius: 6px;
+    padding: 14px 18px;
+  }
+  .nome-wrap label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #1a5c4a;
+    white-space: nowrap;
+  }
+  .nome-wrap input {
+    flex: 1;
+    border: none;
+    background: none;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 14px;
+    color: #1a1a1a;
+    outline: none;
+  }
+  .nome-wrap input::placeholder { color: #aaa; }
+
+  /* GRID */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px 36px;
+    max-width: 880px;
+    margin: 0 auto;
+  }
+  @media (max-width: 620px) { .grid { grid-template-columns: 1fr; } }
+
+  /* CARD */
+  .card-tag {
+    display: inline-block;
+    background: #1a5c4a;
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 3px;
+    margin-bottom: 8px;
+  }
+  .card-question {
+    font-style: italic;
+    font-size: 12.5px;
+    color: #333;
+    line-height: 1.55;
+    margin-bottom: 10px;
+    min-height: 38px;
+  }
+  .scale-desc {
+    font-size: 10.5px;
+    color: #888;
+    text-align: center;
+    margin-bottom: 8px;
+    font-style: italic;
+  }
+  .dot-track {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 2px;
+    position: relative;
+  }
+  .dot-track::before {
+    content: '';
+    position: absolute;
+    left: 14px; right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 1px;
+    background: #ccc;
+    z-index: 0;
+  }
+  .dot {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 2px solid #1a5c4a;
+    background: #fff;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+    transition: background 0.18s, transform 0.12s, box-shadow 0.12s;
+    flex-shrink: 0;
+  }
+  .dot:hover { transform: scale(1.18); box-shadow: 0 0 0 3px rgba(26,92,74,0.15); }
+  .dot.selected { background: #1a5c4a; border-color: #1a5c4a; box-shadow: 0 0 0 3px rgba(26,92,74,0.22); }
+  .dot.selected::after {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    border-radius: 50%;
+    background: #fff;
+  }
+  .scale-ends { display: flex; justify-content: space-between; margin-top: 6px; }
+  .end-label { font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700; color: #1a1a1a; }
+
+  /* ACTIONS */
+  .actions {
+    max-width: 880px;
+    margin: 36px auto 0;
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+  }
+  .btn {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 11px 26px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 2px solid #1a5c4a;
+    transition: all 0.18s;
+  }
+  .btn-primary { background: #1a5c4a; color: #fff; }
+  .btn-primary:hover { background: #134438; border-color: #134438; }
+  .btn-secondary { background: #fff; color: #1a5c4a; }
+  .btn-secondary:hover { background: #f0f7f5; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .status-msg {
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 160px;
+    text-align: center;
+    padding: 6px 12px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .status-msg.show { opacity: 1; }
+  .status-msg.ok { color: #1a5c4a; background: #f0f7f5; }
+  .status-msg.err { color: #c0392b; background: #fdf0ee; }
+
+  /* PROGRESSO */
+  .progress-wrap {
+    max-width: 880px;
+    margin: 20px auto 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 6px;
+    background: #e8e8e8;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: #1a5c4a;
+    border-radius: 3px;
+    transition: width 0.3s;
+    width: 0%;
+  }
+  .progress-label {
+    font-size: 11px;
+    color: #888;
+    white-space: nowrap;
+  }
+
+  /* ========== DASHBOARD ========== */
+  .dash-header {
+    max-width: 980px;
+    margin: 0 auto 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .dash-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #1a5c4a;
+  }
+  .dash-subtitle { font-size: 12px; color: #888; margin-top: 2px; }
+
+  .dash-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  /* Tabela */
+  .table-wrap {
+    max-width: 980px;
+    margin: 0 auto 36px;
+    overflow-x: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  thead th {
+    background: #1a5c4a;
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 10.5px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 10px 12px;
+    text-align: left;
+    white-space: nowrap;
+  }
+  tbody tr:nth-child(even) { background: #f9f9f9; }
+  tbody tr:hover { background: #f0f7f5; }
+  tbody td {
+    padding: 9px 12px;
+    border-bottom: 1px solid #efefef;
+    white-space: nowrap;
+  }
+  .dot-cell {
+    display: flex;
+    gap: 3px;
+    align-items: center;
+  }
+  .mini-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    border: 1.5px solid #1a5c4a;
+    background: #fff;
+    flex-shrink: 0;
+  }
+  .mini-dot.sel { background: #1a5c4a; }
+
+  /* Cards resumo por eixo */
+  .eixo-cards {
+    max-width: 980px;
+    margin: 0 auto 36px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+  .eixo-card {
+    border: 1.5px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .eixo-card-tag {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #fff;
+    background: #1a5c4a;
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 2px;
+    margin-bottom: 10px;
+  }
+  .eixo-ends {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #888;
+    margin-bottom: 6px;
+  }
+  .eixo-bar-wrap {
+    position: relative;
+    height: 8px;
+    background: #e8e8e8;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+  .eixo-avg-marker {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: #1a5c4a;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #1a5c4a;
+  }
+  .eixo-dots-preview {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+  .preview-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #e0e0e0;
+    flex-shrink: 0;
+  }
+  /* color by position */
+  .preview-dot.pos-0 { background: #1a5c4a; }
+  .preview-dot.pos-1 { background: #2e8b6f; }
+  .preview-dot.pos-2 { background: #5aab8e; }
+  .preview-dot.pos-3 { background: #8ecfbb; }
+  .preview-dot.pos-4 { background: #c2e8de; }
+
+  .eixo-card-stats { font-size: 11px; color: #555; }
+  .eixo-card-stats span { color: #1a5c4a; font-weight: 700; }
+
+  .empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: #aaa;
+    font-size: 14px;
+  }
+  .empty-state .icon { font-size: 36px; margin-bottom: 12px; }
+
+  .loading {
+    text-align: center;
+    padding: 32px;
+    color: #888;
+    font-size: 13px;
+  }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 10.5px;
+    color: #aaa;
+  }
+</style>
+</head>
+<body>
+
+<!-- TABS -->
+<div style="max-width:880px;margin:0 auto 0;text-align:center;margin-bottom:8px;">
+  <div class="logo-area" style="justify-content:center;">
+    <svg class="logo-icon" viewBox="0 0 48 48" fill="none">
+      <path d="M24 4 L28 18 L42 18 L31 27 L35 41 L24 33 L13 41 L17 27 L6 18 L20 18 Z" stroke="#1a5c4a" stroke-width="2" fill="none"/>
+      <circle cx="24" cy="24" r="6" stroke="#1a5c4a" stroke-width="1.5" fill="none"/>
+      <line x1="24" y1="4" x2="24" y2="44" stroke="#1a5c4a" stroke-width="1" opacity="0.3"/>
+      <line x1="4" y1="24" x2="44" y2="24" stroke="#1a5c4a" stroke-width="1" opacity="0.3"/>
+    </svg>
+    <div class="brand-name">ILANA<br>BERENHOLC</div>
+  </div>
+  <h1>Cartografia da Presença Executiva</h1>
+</div>
+
+<div class="tabs" style="margin-bottom:28px;">
+  <button class="tab-btn active" onclick="switchTab('responder')">✏️ Responder</button>
+  <button class="tab-btn" onclick="switchTab('dashboard')">📊 Dashboard</button>
+</div>
+
+<!-- ======= ABA RESPONDER ======= -->
+<div class="tab-content active" id="tab-responder">
+
+  <div class="header" style="margin-bottom:20px;">
+    <p class="subtitle">
+      Presença é a forma como você ocupa o espaço. Este instrumento mapeia seus padrões dominantes.<br>
+      Não existe melhor ou pior, mas o que funciona ou não funciona para cada contexto.<br>
+      Em cada eixo, marque onde você naturalmente se posiciona. Pode ser no círculo ou entre eles.
+    </p>
+  </div>
+
+  <!-- NOME -->
+  <div class="nome-wrap">
+    <label for="nomeInput">Seu nome:</label>
+    <input type="text" id="nomeInput" placeholder="Digite seu nome completo..." autocomplete="name" />
+  </div>
+
+  <!-- PROGRESSO -->
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <span class="progress-label" id="progressLabel">0 de 8 respondidos</span>
+  </div>
+
+  <!-- GRID -->
+  <div class="grid" id="mainGrid" style="margin-top:24px;"></div>
+
+  <!-- AÇÕES -->
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="limpar()">Limpar tudo</button>
+    <button class="btn btn-primary" id="btnSalvar" onclick="enviarSheets()">Salvar respostas ↗</button>
+    <span class="status-msg" id="statusMsg"></span>
+  </div>
+
+</div>
+
+<!-- ======= ABA DASHBOARD ======= -->
+<div class="tab-content" id="tab-dashboard">
+
+  <div class="dash-header">
+    <div>
+      <div class="dash-title">Dashboard — Respostas da Turma</div>
+      <div class="dash-subtitle" id="dashSubtitle">Carregando...</div>
+    </div>
+    <div class="dash-actions">
+      <button class="btn btn-secondary" onclick="carregarDashboard()">↺ Atualizar</button>
+    </div>
+  </div>
+
+  <!-- CARDS POR EIXO -->
+  <div class="eixo-cards" id="eixoCards">
+    <div class="loading">Carregando respostas...</div>
+  </div>
+
+  <!-- TABELA INDIVIDUAL -->
+  <div style="max-width:980px;margin:0 auto 12px;">
+    <div style="font-family:'Montserrat',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#1a5c4a;margin-bottom:12px;">
+      Respostas individuais
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Data/Hora</th>
+          <th>Ritmo</th>
+          <th>Entrada</th>
+          <th>Energia</th>
+          <th>Foco</th>
+          <th>Condução</th>
+          <th>Impulso</th>
+          <th>Posição</th>
+          <th>Expressão</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaBody">
+        <tr><td colspan="10" style="text-align:center;padding:24px;color:#aaa;">Carregando...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<div class="footer">
+  CARTOGRAFIA DA PRESENÇA EXECUTIVA © 2026 por Ilana Berenholc está licenciado sob CC BY-NC-ND 4.0
+</div>
+
+<script>
+// ===================== CONFIG =====================
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzzvtt-ov9LzyjHzLoZJVT2OibPV-FFYu3qE5lfXwtSPKRiOt6XvLPCGJImyJg52jSY/exec';
+const DOTS = 5;
+const STORAGE_KEY = 'cartografia_local_2026';
+
+const EIXOS = [
+  { id: 'ritmo',    tag: 'RITMO',     question: 'Quando você entra em uma conversa, costuma acelerar o andamento ou esperar o tempo dos outros?', desc: 'O compasso que você imprime na interação.', left: 'Acelero', right: 'Espero' },
+  { id: 'entrada',  tag: 'ENTRADA',   question: 'O que te dá mais segurança: ter bons argumentos ou criar conexão com quem está na sala?', desc: 'A via pela qual você acessa e ocupa o espaço nas conversas.', left: 'Argumento', right: 'Conexão' },
+  { id: 'energia',  tag: 'ENERGIA',   question: 'Quando a tensão sobe, sua reação automática é intensificar o movimento ou reduzir a pressão?', desc: 'Como você lida com a tensão e o clima do ambiente.', left: 'Intensifico', right: 'Regulo' },
+  { id: 'foco',     tag: 'FOCO',      question: 'Quando você quer influenciar uma decisão, você aponta o cenário maior ou o próximo passo?', desc: 'A escala temporal para onde você direciona a atenção do grupo.', left: 'Projeto', right: 'Enquadro' },
+  { id: 'conducao', tag: 'CONDUÇÃO',  question: 'Quando o grupo está travado, você tende a dar o caminho ou a abrir novas possibilidades?', desc: 'Como você move o grupo quando há decisão ou bloqueio.', left: 'Direciono', right: 'Instigo' },
+  { id: 'impulso',  tag: 'IMPULSO',   question: 'Quando você entra numa dinâmica em curso, você tende a fortalecer o que já está se formando ou introduz um elemento que desloca?', desc: 'O que você traz para o movimento do grupo.', left: 'Reforço', right: 'Desloco' },
+  { id: 'posicao',  tag: 'POSIÇÃO',   question: 'Em decisões importantes, você centraliza ou influencia sem ocupar o centro?', desc: 'De onde você atua na dinâmica do grupo.', left: 'Ocupo', right: 'Articulo' },
+  { id: 'expressao',tag: 'EXPRESSÃO', question: 'Quando você faz algo relevante, você costuma tornar isso visível ou deixar que aconteça sem se associar?', desc: 'Como sua influência se manifesta.', left: 'Evidencio', right: 'Deixo acontecer' }
+];
+
+// Labels de posição
+const POS_LABELS = ['Fortemente esquerda', 'Tendência esquerda', 'Centro', 'Tendência direita', 'Fortemente direita'];
+
+// ===================== STATE =====================
+let state = {};
+try {
+  const s = localStorage.getItem(STORAGE_KEY);
+  if (s) state = JSON.parse(s);
+} catch(e) {}
+
+// ===================== TABS =====================
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.target.classList.add('active');
+  if (tab === 'dashboard') carregarDashboard();
+}
+
+// ===================== BUILD FORM =====================
+function buildGrid() {
+  const grid = document.getElementById('mainGrid');
+  grid.innerHTML = '';
+  EIXOS.forEach(eixo => {
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    card.innerHTML = `
+      <div class="card-tag">${eixo.tag}</div>
+      <div class="card-question">${eixo.question}</div>
+      <div class="scale-desc">${eixo.desc}</div>
+    `;
+
+    const track = document.createElement('div');
+    track.className = 'dot-track';
+    for (let i = 0; i < DOTS; i++) {
+      const dot = document.createElement('button');
+      dot.className = 'dot' + (state[eixo.id] === i ? ' selected' : '');
+      dot.setAttribute('aria-label', `${POS_LABELS[i]} — entre ${eixo.left} e ${eixo.right}`);
+      dot.addEventListener('click', () => {
+        state[eixo.id] = (state[eixo.id] === i) ? undefined : i;
+        if (state[eixo.id] === undefined) delete state[eixo.id];
+        updateDots(eixo.id);
+        updateProgress();
+        autoSave();
+      });
+      track.appendChild(dot);
+    }
+    card.appendChild(track);
+
+    const ends = document.createElement('div');
+    ends.className = 'scale-ends';
+    ends.innerHTML = `<span class="end-label">${eixo.left}</span><span class="end-label">${eixo.right}</span>`;
+    card.appendChild(ends);
+
+    grid.appendChild(card);
+  });
+  updateProgress();
+}
+
+function updateDots(eixoId) {
+  const cards = document.querySelectorAll('.card');
+  EIXOS.forEach((eixo, idx) => {
+    if (eixo.id !== eixoId) return;
+    cards[idx].querySelectorAll('.dot').forEach((dot, i) => {
+      dot.classList.toggle('selected', state[eixo.id] === i);
+    });
+  });
+}
+
+function updateProgress() {
+  const answered = EIXOS.filter(e => state[e.id] !== undefined).length;
+  const pct = (answered / EIXOS.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `${answered} de ${EIXOS.length} respondidos`;
+}
+
+function autoSave() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+}
+
+function limpar() {
+  if (!confirm('Limpar todas as respostas?')) return;
+  state = {};
+  localStorage.removeItem(STORAGE_KEY);
+  document.getElementById('nomeInput').value = '';
+  buildGrid();
+  showStatus('', '');
+}
+
+// ===================== ENVIAR SHEETS =====================
+async function enviarSheets() {
+  const nome = document.getElementById('nomeInput').value.trim();
+  if (!nome) { showStatus('Por favor, insira seu nome!', 'err'); return; }
+
+  const respondidos = EIXOS.filter(e => state[e.id] !== undefined).length;
+  if (respondidos < EIXOS.length) {
+    const ok = confirm(`Você respondeu apenas ${respondidos} de ${EIXOS.length} eixos. Deseja salvar assim mesmo?`);
+    if (!ok) return;
+  }
+
+  const btn = document.getElementById('btnSalvar');
+  btn.disabled = true;
+  btn.textContent = 'Salvando...';
+  showStatus('Enviando...', 'ok');
+
+  // Converte índice (0-4) em label descritivo
+  function label(eixoId) {
+    const v = state[eixoId];
+    if (v === undefined) return 'Não respondido';
+    return POS_LABELS[v];
+  }
+
+  const payload = {
+    nome,
+    ritmo:    label('ritmo'),
+    entrada:  label('entrada'),
+    energia:  label('energia'),
+    foco:     label('foco'),
+    conducao: label('conducao'),
+    impulso:  label('impulso'),
+    posicao:  label('posicao'),
+    expressao:label('expressao')
+  };
+
+  try {
+    await fetch(SHEET_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    showStatus('✓ Salvo com sucesso!', 'ok');
+    // Marca localmente como enviado
+    state._enviado = true;
+    autoSave();
+  } catch(err) {
+    showStatus('Erro ao salvar. Tente novamente.', 'err');
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Salvar respostas ↗';
+}
+
+function showStatus(msg, type) {
+  const el = document.getElementById('statusMsg');
+  el.textContent = msg;
+  el.className = 'status-msg ' + type + (msg ? ' show' : '');
+  if (msg && type === 'ok') {
+    setTimeout(() => el.classList.remove('show'), 3500);
+  }
+}
+
+// ===================== DASHBOARD =====================
+// Como o Apps Script usa no-cors, não podemos fazer GET direto.
+// Usamos um GET com jsonp ou lemos via URL pública da planilha.
+// Melhor: publicar a planilha como CSV e ler daí.
+// Vamos usar a URL do Apps Script com ?action=get via fetch (cors bloqueado),
+// então pedimos ao usuário que cole a URL pública do CSV da planilha.
+
+// Abordagem: lemos via URL de publicação da planilha como CSV.
+// O usuário precisa publicar a planilha (Arquivo > Compartilhar > Publicar na web > CSV)
+// e colar a URL aqui.
+
+// ID da planilha extraído da URL publicada
+const SHEET_ID = '2PACX-1vTHmWWSwri13KUxnbvaCuh-NlbMW-rZkQ2ra_8qQfNfo7CE7CnKGMSHFjgEaA3X97aI85VNmzPmTMQT';
+const GVZ_URL = `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?output=csv`;
+
+function carregarDashboard() {
+  document.getElementById('eixoCards').innerHTML = '<div class="loading">Carregando respostas...</div>';
+  document.getElementById('tabelaBody').innerHTML = '<tr><td colspan="10" style="text-align:center;padding:24px;color:#aaa;">Carregando...</td></tr>';
+  document.getElementById('dashSubtitle').textContent = 'Carregando...';
+
+  // Remove script anterior se existir
+  const old = document.getElementById('csvScript');
+  if (old) old.remove();
+
+  // Usa a API de query do Google que permite CORS via callback JSONP
+  const queryUrl = `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?output=csv&r=${Date.now()}`;
+
+  // Fallback: iframe + postMessage não funciona em file://
+  // Melhor solução: fetch com URL pública do CSV funciona de servidor HTTP.
+  // Para file://, usamos XMLHttpRequest que em alguns browsers permite cross-origin para googleapis.
+  // Solução definitiva: usar a Google Sheets Query API com gviz/tq que retorna JSONP.
+
+  // Extrai o sheet ID real (não o ID publicado, mas o ID da planilha para gviz)
+  // Como temos apenas o ID publicado, vamos usar fetch com modo cors e tratar o erro adequadamente.
+  // Na prática, quando hospedado em servidor HTTP (não file://) funciona perfeitamente.
+  // Para file://, orientamos a usar via servidor local ou subir o HTML em algum lugar.
+
+  fetch(GVZ_URL + '&t=' + Date.now())
+    .then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    })
+    .then(text => {
+      const rows = parseCSV(text);
+      renderDashboard(rows);
+    })
+    .catch(() => {
+      // CORS bloqueado (file://) — orienta a abrir via servidor ou drive
+      document.getElementById('eixoCards').innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1;">
+          <div class="icon">⚠️</div>
+          <div style="margin-bottom:16px;max-width:400px;margin-left:auto;margin-right:auto;line-height:1.6;">
+            O dashboard não carrega quando o HTML é aberto direto como arquivo (<code>file://</code>).<br><br>
+            <strong>Solução rápida:</strong> suba o HTML no Google Drive e abra com <em>Visualizador de HTML</em>, 
+            ou use qualquer servidor HTTP simples.<br><br>
+            <strong>Opção mais fácil:</strong> abra o arquivo pelo <a href="https://htmlpreview.github.io/" target="_blank" style="color:#1a5c4a;">htmlpreview.github.io</a> 
+            ou suba no seu GitHub Pages.
+          </div>
+          <button class="btn btn-secondary" onclick="tentarProxyFetch()">↺ Tentar novamente</button>
+        </div>`;
+      document.getElementById('tabelaBody').innerHTML = '<tr><td colspan="10" style="text-align:center;padding:24px;color:#aaa;">—</td></tr>';
+    });
+}
+
+function tentarProxyFetch() {
+  // Tenta via proxy público como alternativa
+  const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(GVZ_URL);
+  document.getElementById('eixoCards').innerHTML = '<div class="loading">Tentando via proxy...</div>';
+
+  fetch(proxyUrl)
+    .then(r => r.text())
+    .then(text => {
+      const rows = parseCSV(text);
+      renderDashboard(rows);
+    })
+    .catch(() => {
+      document.getElementById('eixoCards').innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="icon">⚠️</div>Não foi possível carregar. Abra o HTML via servidor HTTP.</div>';
+    });
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(',').map(h => h.replace(/"/g,'').trim());
+  return lines.slice(1).map(line => {
+    // Parse CSV respeitando aspas
+    const vals = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') { inQ = !inQ; continue; }
+      if (c === ',' && !inQ) { vals.push(cur.trim()); cur = ''; continue; }
+      cur += c;
+    }
+    vals.push(cur.trim());
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = vals[i] || '');
+    return obj;
+  });
+}
+
+function posToNum(label) {
+  const map = {
+    'Fortemente esquerda': 0,
+    'Tendência esquerda': 1,
+    'Centro': 2,
+    'Tendência direita': 3,
+    'Fortemente direita': 4,
+    'Não respondido': null
+  };
+  return map[label] ?? null;
+}
+
+function renderDashboard(rows) {
+  if (rows.length === 0) {
+    document.getElementById('eixoCards').innerHTML = '<div class="empty-state"><div class="icon">📭</div>Nenhuma resposta ainda.</div>';
+    document.getElementById('tabelaBody').innerHTML = '<tr><td colspan="10" style="text-align:center;padding:24px;color:#aaa;">Sem dados</td></tr>';
+    document.getElementById('dashSubtitle').textContent = '0 respostas';
+    return;
+  }
+
+  document.getElementById('dashSubtitle').textContent = `${rows.length} resposta${rows.length > 1 ? 's' : ''} recebida${rows.length > 1 ? 's' : ''}`;
+
+  // === CARDS POR EIXO ===
+  const cards = document.getElementById('eixoCards');
+  cards.innerHTML = '';
+
+  const colMap = {
+    ritmo: 'Ritmo', entrada: 'Entrada', energia: 'Energia', foco: 'Foco',
+    conducao: 'Condução', impulso: 'Impulso', posicao: 'Posição', expressao: 'Expressão'
+  };
+
+  EIXOS.forEach(eixo => {
+    const col = colMap[eixo.id];
+    const vals = rows.map(r => posToNum(r[col])).filter(v => v !== null);
+    const avg = vals.length ? vals.reduce((a,b) => a+b, 0) / vals.length : null;
+    const pct = avg !== null ? (avg / 4) * 100 : 50;
+
+    const card = document.createElement('div');
+    card.className = 'eixo-card';
+
+    // Mini dots preview (todos os respondentes)
+    const dotPreviews = vals.map(v => `<div class="preview-dot pos-${v}" title="${POS_LABELS[v]}"></div>`).join('');
+
+    card.innerHTML = `
+      <div class="eixo-card-tag">${eixo.tag}</div>
+      <div class="eixo-ends"><span>${eixo.left}</span><span>${eixo.right}</span></div>
+      <div class="eixo-bar-wrap">
+        <div class="eixo-avg-marker" style="left:${pct}%"></div>
+      </div>
+      <div class="eixo-card-stats">
+        Média da turma: <span>${avg !== null ? POS_LABELS[Math.round(avg)] : '—'}</span><br>
+        ${vals.length} resposta${vals.length !== 1 ? 's' : ''}
+      </div>
+      <div class="eixo-dots-preview" style="margin-top:8px;">${dotPreviews}</div>
+    `;
+    cards.appendChild(card);
+  });
+
+  // === TABELA ===
+  const tbody = document.getElementById('tabelaBody');
+  tbody.innerHTML = '';
+
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    const eixoIds = ['Ritmo','Entrada','Energia','Foco','Condução','Impulso','Posição','Expressão'];
+    const eixoObjs = EIXOS;
+
+    let html = `<td><strong>${r['Nome'] || '—'}</strong></td><td style="color:#888;font-size:11px;">${r['Timestamp'] || '—'}</td>`;
+
+    eixoObjs.forEach((eixo, i) => {
+      const col = eixoIds[i];
+      const v = posToNum(r[col]);
+      let dots = '';
+      for (let d = 0; d < DOTS; d++) {
+        dots += `<div class="mini-dot${v === d ? ' sel' : ''}"></div>`;
+      }
+      html += `<td><div class="dot-cell">${dots}</div><div style="font-size:10px;color:#888;margin-top:2px;">${r[col] || '—'}</div></td>`;
+    });
+
+    tr.innerHTML = html;
+    tbody.appendChild(tr);
+  });
+}
+
+// ===================== INIT =====================
+buildGrid();
+</script>
+</body>
+</html>
